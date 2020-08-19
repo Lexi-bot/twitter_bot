@@ -1,10 +1,6 @@
-consumer_key = "SGBOxda2KnbkgR5JAGw9Tvvaq"
-consumer_secret = "RzzdOHaNSNjZMB5CwfOGUtyt3t2c7jlod9NqvLECvEhUphn3ks"
-access_token = "1295595284701966336-nJtCTgmNawjZDnc6Nd2vtM4gGTTHvO"
-access_token_secret = "tb6dHPiK2hSp2dLxRPevd1MNNR7ApVGk3SB3wKflaWvWz"
-
 import tweepy, re
-
+import os
+from os import environ
 from nltk.corpus import stopwords
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
 import matplotlib.pyplot as plt
@@ -17,6 +13,12 @@ from tweepy.streaming import StreamListener
 from tweepy import OAuthHandler
 from tweepy import Stream
 from tweepy import API, Cursor
+
+consumer_key = environ["CONSUMER_KEY"]
+consumer_secret = environ["CONSUMER_SECRET"]
+access_token = environ["ACCESS_KEY"]
+access_token_secret = environ["ACCESS_SECRET"]
+
 
 class TwitterClient():
 	def __init__(self,twitter_user=None):
@@ -142,7 +144,7 @@ if __name__ == '__main__':
 			wordcloud.to_file(f'{tweet_id}.png')
 			
 			new_client.reply_media(f'{tweet_id}.png',tweet_id)
-		## reply
+		
 		
 
 
