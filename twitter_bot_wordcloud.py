@@ -1,5 +1,5 @@
 import tweepy, re
-import os
+import os,time
 from os import environ
 from nltk.corpus import stopwords
 from wordcloud import WordCloud, STOPWORDS, ImageColorGenerator
@@ -101,49 +101,44 @@ class TwitterListener(StreamListener):
 		
 
 if __name__ == '__main__':
-	hash_tag_list= ['dame da ne']
-	fetched_tweets_filename = 'tweets.txt'
+	while True:
+		twitter_client = TwitterClient()	
+		with open('last_id.txt','r') as f:
+			id_txt = f.read().strip()
+			if id_txt != '':
+				last_id = int(id_txt)
+			else:
+				last_id = None
+
+		for x in reversed(twitter_client.get_mentions_timeline(100,last_id)):
+			tweet = x._json['text']
+			tweet_id = x._json['id']
+			tweet_id_str = x._json['id_str']
+
+			if tweet.strip().lower() == '@lexikatbot':
+
+				with open('last_id.txt','w+') as f:
+					f.write(tweet_id_str)
+
+				username = x._json['user']['screen_name']
+				new_client = TwitterClient(username)
+				all_tweets = []
+
+				for y in new_client.get_user_timeline_tweets(3200):
+					norm = re.sub(r'@[^\s]+', '',y._json['text'])
+					norm = re.sub(r'https://[^\s]+','',norm)
+					norm = re.sub(r'[^\w\s]',' ',norm)
 
 
-	# WordCloud(stopwords=stop_words, background_color="white", colormap="Dark2",max_font_size=150, random_state=42)
+					if len(norm) > 0:
+						all_tweets.append(norm)
+				text = ' '.join(all_tweets)
+				print(text)
+				wordcloud = WordCloud(stopwords=list_stopwords, collocations=False).generate(text)
+				wordcloud.to_file(f'{tweet_id}.png')
 
-	twitter_client = TwitterClient()	
-	# print(len(twitter_client.get_user_timeline_tweets(5000)))
-	with open('last_id.txt','r') as f:
-		id_txt = f.read().strip()
-		if id_txt != '':
-			last_id = int(id_txt)
-		else:
-			last_id = None
-
-	for x in reversed(twitter_client.get_mentions_timeline(100,last_id)):
-		tweet = x._json['text']
-		tweet_id = x._json['id']
-		tweet_id_str = x._json['id_str']
-
-		if tweet.strip().lower() == '@lexikatbot':
-
-			with open('last_id.txt','w+') as f:
-				f.write(tweet_id_str)
-			
-			username = x._json['user']['screen_name']
-			new_client = TwitterClient(username)
-			all_tweets = []
-
-			for y in new_client.get_user_timeline_tweets(3200):
-				norm = re.sub(r'@[^\s]+', '',y._json['text'])
-				norm = re.sub(r'https://[^\s]+','',norm)
-				norm = re.sub(r'[^\w\s]',' ',norm)
-				
-
-				if len(norm) > 0:
-					all_tweets.append(norm)
-			text = ' '.join(all_tweets)
-			print(text)
-			wordcloud = WordCloud(stopwords=list_stopwords, collocations=False).generate(text)
-			wordcloud.to_file(f'{tweet_id}.png')
-			
-			new_client.reply_media(f'{tweet_id}.png',tweet_id)
+				new_client.reply_media(f'{tweet_id}.png',tweet_id)
+		time.sleep(30)
 		
 		
 
