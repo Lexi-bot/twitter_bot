@@ -138,7 +138,7 @@ while True:
 			wordcloud.to_file(f'{tweet_id}.png')
 
 			new_client.reply_media(f'{tweet_id}.png',tweet_id)
-	time.sleep(30)
+	time.sleep(300)
 		
 		
 
