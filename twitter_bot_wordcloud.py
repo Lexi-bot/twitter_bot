@@ -113,7 +113,7 @@ while True:
 		tweet = x._json['text']
 		tweet_id = x._json['id']
 		tweet_id_str = x._json['id_str']
-		print
+		
 		if tweet.strip().lower() == '@botlexikat #botlexikat':
 
 			with open('last_id.txt','w+') as f:
